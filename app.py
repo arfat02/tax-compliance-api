@@ -9,46 +9,16 @@ TAX_DATA = {
     "IN": {"country_name": "India", "standard_vat": 18.0, "reduced_vat": 5.0, "currency": "INR"},
     "BD": {"country_name": "Bangladesh", "standard_vat": 15.0, "reduced_vat": 5.0, "currency": "BDT"},
     "US": {"country_name": "United States", "standard_vat": 10.0, "reduced_vat": 0.0, "currency": "USD"},
-    "US_CA": {"region": "USA (California)", "avg_sales_tax": 8.82, "currency": "USD"},
-    "CA": {"country_name": "Canada", "standard_vat": 5.0, "reduced_vat": 0.0, "currency": "CAD"},
-    "CA_ON": {"region": "Canada (Ontario)", "hst": 13.0, "gst": 5.0, "pst": 8.0, "currency": "CAD"},
-    "CA_BC": {"region": "Canada (British Columbia)", "gst": 5.0, "pst": 7.0, "currency": "CAD"},
     "GB": {"country_name": "United Kingdom", "standard_vat": 20.0, "reduced_vat": 5.0, "currency": "GBP"},
     "DE": {"country_name": "Germany", "standard_vat": 19.0, "reduced_vat": 7.0, "currency": "EUR"},
     "FR": {"country_name": "France", "standard_vat": 20.0, "reduced_vat": 5.5, "currency": "EUR"},
-    "IT": {"country_name": "Italy", "standard_vat": 22.0, "reduced_vat": 10.0, "currency": "EUR"},
-    "ES": {"country_name": "Spain", "standard_vat": 21.0, "reduced_vat": 10.0, "currency": "EUR"},
-    "NL": {"country_name": "Netherlands", "standard_vat": 21.0, "reduced_vat": 9.0, "currency": "EUR"},
-    "CH": {"country_name": "Switzerland", "standard_vat": 8.1, "reduced_vat": 2.6, "currency": "CHF"},
     "AE": {"country_name": "United Arab Emirates", "standard_vat": 5.0, "reduced_vat": 0.0, "currency": "AED"},
-    "SA": {"country_name": "Saudi Arabia", "standard_vat": 15.0, "reduced_vat": 0.0, "currency": "SAR"},
-    "QA": {"country_name": "Qatar", "standard_vat": 0.0, "reduced_vat": 0.0, "currency": "QAR"},
-    "KW": {"country_name": "Kuwait", "standard_vat": 0.0, "reduced_vat": 0.0, "currency": "KWD"},
-    "OM": {"country_name": "Oman", "standard_vat": 5.0, "reduced_vat": 0.0, "currency": "OMR"},
-    "BH": {"country_name": "Bahrain", "standard_vat": 10.0, "reduced_vat": 0.0, "currency": "BHD"},
-    "CN": {"country_name": "China", "standard_vat": 13.0, "reduced_vat": 9.0, "currency": "CNY"},
-    "JP": {"country_name": "Japan", "standard_vat": 10.0, "reduced_vat": 8.0, "currency": "JPY"},
-    "KR": {"country_name": "South Korea", "standard_vat": 10.0, "reduced_vat": 0.0, "currency": "KRW"},
-    "SG": {"country_name": "Singapore", "standard_vat": 9.0, "reduced_vat": 0.0, "currency": "SGD"},
-    "MY": {"country_name": "Malaysia", "standard_vat": 10.0, "reduced_vat": 6.0, "currency": "MYR"},
-    "ID": {"country_name": "Indonesia", "standard_vat": 11.0, "reduced_vat": 0.0, "currency": "IDR"},
-    "TH": {"country_name": "Thailand", "standard_vat": 7.0, "reduced_vat": 0.0, "currency": "THB"},
-    "PH": {"country_name": "Philippines", "standard_vat": 12.0, "reduced_vat": 0.0, "currency": "PHP"},
-    "AU": {"country_name": "Australia", "standard_vat": 10.0, "reduced_vat": 0.0, "currency": "AUD"},
-    "NZ": {"country_name": "New Zealand", "standard_vat": 15.0, "reduced_vat": 0.0, "currency": "NZD"},
-    "ZA": {"country_name": "South Africa", "standard_vat": 15.0, "reduced_vat": 0.0, "currency": "ZAR"},
-    "EG": {"country_name": "Egypt", "standard_vat": 14.0, "reduced_vat": 0.0, "currency": "EGP"},
-    "NG": {"country_name": "Nigeria", "standard_vat": 7.5, "reduced_vat": 0.0, "currency": "NGN"},
-    "KE": {"country_name": "Kenya", "standard_vat": 16.0, "reduced_vat": 0.0, "currency": "KES"},
-    "BR": {"country_name": "Brazil", "standard_vat": 17.0, "reduced_vat": 0.0, "currency": "BRL"},
-    "MX": {"country_name": "Mexico", "standard_vat": 16.0, "reduced_vat": 0.0, "currency": "MXN"},
-    "AR": {"country_name": "Argentina", "standard_vat": 21.0, "reduced_vat": 10.5, "currency": "ARS"},
-    "TR": {"country_name": "Turkey", "standard_vat": 20.0, "reduced_vat": 10.0, "currency": "TRY"}
+    "SA": {"country_name": "Saudi Arabia", "standard_vat": 15.0, "reduced_vat": 0.0, "currency": "SAR"}
 }
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"status": "online", "service": "Global Tax API", "version": "2.1.0"})
+    return jsonify({"status": "online", "service": "Global Tax API", "version": "2.2.0"})
 
 @app.route('/api/v1/tax', methods=['GET'])
 def get_tax_rate():
@@ -57,7 +27,6 @@ def get_tax_rate():
     if not code:
         return jsonify({"error": "Country code required (?code=PK)"}), 400
 
-    # Primary Local Lookup
     if code in TAX_DATA:
         data = TAX_DATA[code].copy()
         data['country_code'] = code
@@ -65,7 +34,6 @@ def get_tax_rate():
         data['status'] = 'success'
         return jsonify({"data": data})
 
-    # Live Provider Fallback
     try:
         resp = requests.get(f"https://api.vatcomply.com/rates?country={code}", timeout=3)
         if resp.status_code == 200:
@@ -86,6 +54,57 @@ def get_tax_rate():
         print(f"Fallback Error: {e}")
 
     return jsonify({"error": f"Location code '{code}' not found"}), 404
+
+@app.route('/api/v1/calculate', methods=['POST'])
+def calculate_tax():
+    req_data = request.get_json()
+    
+    if not req_data or 'code' not in req_data or 'amount' not in req_data:
+        return jsonify({"error": "Please provide 'code' and 'amount' in JSON body."}), 400
+
+    code = req_data['code'].upper()
+    try:
+        amount = float(req_data['amount'])
+    except ValueError:
+        return jsonify({"error": "Invalid amount format. Must be a number."}), 400
+
+    tax_rate = None
+    country_name = code
+
+    # Check local DB first
+    if code in TAX_DATA:
+        tax_rate = TAX_DATA[code].get("standard_vat", 0.0)
+        country_name = TAX_DATA[code].get("country_name", code)
+    else:
+        # Fallback to live provider
+        try:
+            resp = requests.get(f"https://api.vatcomply.com/rates?country={code}", timeout=3)
+            if resp.status_code == 200:
+                live = resp.json()
+                rate = live.get("rates", {}).get(code) or live.get("rate")
+                if rate is not None:
+                    tax_rate = float(rate)
+                    country_name = live.get("name", code)
+        except Exception as e:
+            print(f"Calculation Fallback Error: {e}")
+
+    if tax_rate is None:
+        return jsonify({"error": f"Location code '{code}' not found for calculation"}), 404
+
+    tax_amount = round((amount * tax_rate) / 100, 2)
+    total_amount = round(amount + tax_amount, 2)
+
+    return jsonify({
+        "data": {
+            "country_code": code,
+            "country_name": country_name,
+            "base_amount": amount,
+            "tax_rate_percent": tax_rate,
+            "tax_amount": tax_amount,
+            "total_amount": total_amount,
+            "status": "success"
+        }
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
